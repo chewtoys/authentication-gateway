@@ -19,6 +19,7 @@ DEV_OVERLAY_DIR=$(realpath .)
     echo
     git clone https://github.com/dot-base/deployments.git ${DOT_BASE_DIR_NAME}
   fi
+}
 
 ${DOT_BASE_DIR}/dot-base.sh setup
 
