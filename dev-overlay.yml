@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   authentication-gateway:
-    image: node:16-alpine
+    image: node:18-alpine
     user: ${USERID}
     working_dir: /var/workspace
     volumes:
