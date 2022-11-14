@@ -1,4 +1,4 @@
-FROM node:18-alpine AS builder
+FROM node:18.12.1-alpine AS builder
 WORKDIR /usr/src/app
 COPY . .
 RUN npm install && \
@@ -10,7 +10,7 @@ RUN npm install && \
 WORKDIR /usr/src/app-build
 RUN npm install --omit=dev
 
-FROM node:18-alpine
+FROM node:18.12.1-alpine
 RUN apk add dumb-init
 ENV NODE_ENV production
 WORKDIR /usr/src/app
