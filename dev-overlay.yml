@@ -10,14 +10,14 @@ services:
     ports:
       - "3000:3000" # nodejs express server application port to access it directly
       - "9229:9229" # nodejs debugger port
-    environment:
+    # environment:
       # KEYCLOAK_SERVER_ADDRESS: "http://keycloak:8080"
-      
+
       # KEYCLOAK_DOTBASE_REALM_NAME: "dotbase"
       # KEYCLOAK_DOTBASE_REALM_CLIENT_ID: "authentication-gateway"
       # KEYCLOAK_DOTBASE_REALM_CLIENT_SECRET: ""
       # DOTBASE_REALM_COOKIE_ENCRYPTION_PASSPHRASE_AES: ""
-      
+
       # KEYCLOAK_PATIENT_REALM_NAME: "patients"
       # KEYCLOAK_PATIENT_REALM_CLIENT_ID: "authentication-gateway"
       # KEYCLOAK_PATIENT_REALM_CLIENT_SECRET: ""
