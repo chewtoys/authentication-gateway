@@ -10,9 +10,18 @@ services:
     ports:
       - "3000:3000" # nodejs express server application port to access it directly
       - "9229:9229" # nodejs debugger port
-    environment:
-      SOME_FEATURE_RELEVANT_FOR_DEBUGGING: "true"
-    command: sleep infinity
+    # environment:
+      # KEYCLOAK_SERVER_ADDRESS: "http://keycloak:8080"
 
-  fhir-resources:
-    command: npm run production:initialize -- --module all --samples true
+      # KEYCLOAK_DOTBASE_REALM_NAME: "dotbase"
+      # KEYCLOAK_DOTBASE_REALM_CLIENT_ID: "authentication-gateway"
+      # KEYCLOAK_DOTBASE_REALM_CLIENT_SECRET: ""
+      # DOTBASE_REALM_COOKIE_ENCRYPTION_PASSPHRASE_AES: ""
+
+      # KEYCLOAK_PATIENT_REALM_NAME: "patients"
+      # KEYCLOAK_PATIENT_REALM_CLIENT_ID: "authentication-gateway"
+      # KEYCLOAK_PATIENT_REALM_CLIENT_SECRET: ""
+      # PATIENT_REALM_COOKIE_ENCRYPTION_PASSPHRASE_AES: ""
+    command:
+      - sleep
+      - infinity

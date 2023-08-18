@@ -6,106 +6,147 @@ Authentication Gateway for dot-base to manage user authentication and registrati
 
 
 ## Quick Nav
-1. [Usage](#Usage)
 1. [Configuration](#Configuration)
-1. [Contributing](#Contributing)
-
-
-## Usage
-
-Want a authentication gateway of your own? The easiest way is to deploy our docker container. Just follow the steps below to get started.
-
-### Requirements
-- [Docker Engine >= v1.13](https://www.docker.com/get-started)
-
-### Deployment
-1. Set environment variables to configure the container:
-    ```sh
-    export KEYCLOAK_DOTBASE_REALM_NAME="dotbase"
-    export KEYCLOAK_DOTBASE_REALM_CLIENT_ID="YOUR-CLIENT-ID"
-    export KEYCLOAK_DOTBASE_REALM_CLIENT_SECRET="YOUR-CLIENT-SECRET"
-    export DOTBASE_REALM_COOKIE_ENCRYPTION_PASSPHRASE_AES="YOUR-SECRET-TO-ENCRYPT-THE-SESSION-COOKIE"
-
-    export KEYCLOAK_PATIENT_REALM_NAME="patients"
-    export KEYCLOAK_PATIENT_REALM_CLIENT_ID="YOUR-CLIENT-ID"
-    export KEYCLOAK_PATIENT_REALM_CLIENT_SECRET="YOUR-CLIENT-SECRET"
-    export PATIENT_REALM_COOKIE_ENCRYPTION_PASSPHRASE_AES="YOUR-SECRET-TO-ENCRYPT-THE-SESSION-COOKIE"
-
-    ```
-1. Start the container
-    ```
-    docker run --name authentication-gateway -e KEYCLOAK_DOTBASE_REALM_NAME -e KEYCLOAK_DOTBASE_REALM_CLIENT_ID -e KEYCLOAK_DOTBASE_REALM_CLIENT_SECRET -e DOTBASE_REALM_COOKIE_ENCRYPTION_PASSPHRASE_AES -e KEYCLOAK_PATIENT_REALM_NAME -e KEYCLOAK_PATIENT_REALM_CLIENT_ID -e KEYCLOAK_PATIENT_REALM_CLIENT_SECRET -e PATIENT_REALM_COOKIE_ENCRYPTION_PASSPHRASE_AES -p 3000:3000 -d ghcr.io/dot-base/authentication-gateway:latest
-    ```
-1. Done and dusted 🎉. The Server is available on port 3000.
+1. [Setup for Local Development](#setup-for-local-development)
 
 
 ## Configuration
 
 ### Identity Provider Connection
-| Variable Name | Default | Example |
-| --- | --- | --- |
-| KEYCLOAK_SERVER_ADDRESS | http://keycloak:8080 | - |
-| KEYCLOAK_DOTBASE_REALM_NAME | dotbase | - |
-| KEYCLOAK_DOTBASE_REALM_CLIENT_ID | authentication-gateway | - |
-| KEYCLOAK_DOTBASE_REALM_CLIENT_SECRET | - | - |
-| KEYCLOAK_PATIENT_REALM_NAME | patients | - |
-| KEYCLOAK_PATIENT_REALM_CLIENT_ID | authentication-gateway | - |
-| KEYCLOAK_PATIENT_REALM_CLIENT_SECRET | - | - |
+| Variable Name | Default |
+| --- | --- |
+| KEYCLOAK_SERVER_ADDRESS | http://keycloak:8080 |
+| KEYCLOAK_DOTBASE_REALM_NAME | dotbase |
+| KEYCLOAK_DOTBASE_REALM_CLIENT_ID | authentication-gateway |
+| KEYCLOAK_DOTBASE_REALM_CLIENT_SECRET | - |
+| KEYCLOAK_PATIENT_REALM_NAME | patients |
+| KEYCLOAK_PATIENT_REALM_CLIENT_ID | authentication-gateway |
+| KEYCLOAK_PATIENT_REALM_CLIENT_SECRET | - |
 
 ### Encryption
 Used to encrypt the token cookie before sending it to the client
 | Variable Name | Default | Example |
 | --- | --- | --- |
-| DOTBASE_REALM_COOKIE_ENCRYPTION_PASSPHRASE_AES | - | - |
-| PATIENT_REALM_COOKIE_ENCRYPTION_PASSPHRASE_AES | - | - |
+| DOTBASE_REALM_COOKIE_ENCRYPTION_PASSPHRASE_AES | - |
+| PATIENT_REALM_COOKIE_ENCRYPTION_PASSPHRASE_AES | - |
 
-## Contributing
 
-This project is written in Typescript. For an introduction into the language and best practices see the [typescript documentation](https://www.typescriptlang.org/docs/home.html).
+## Setup for Local Development
 
-You will need `docker`, `git`, `jq` and `openssl`. Checkout a local copy of this repository, `cd` into it and run:
+The following steps need to be done only once. After that, you are ready to deploy a dot.base stack with very little commands for testing and development.
+
+### Install prerequisits
+
+You will need `bash`, `coreutils`, `docker`, `git`, `mkcert`, `openssl`, `sudo` and `watch`.
+
+### Checkout this repository
+
+Checkout the dot.base repository and move into it.
+
+```bash
+git clone git@github.com:dot-base/authentication-gateway.git
+cd authentication-gateway
+```
+
+### Generate a Github personal access token
+
+Some components of the dot.base stack are private. So you need to generate a Github personal access token for an account that has access to private dot.base repositories. The token needs the right to `write:packages/read:packages`. Go to https://github.com/settings/tokens/new?scopes=write:packages to generate it.
+
+### Login with your access token
+
+Use `YOUR_TOKEN` and `YOUR_GITHUB_USERNAME` to login to the container registry.
+
+```bash
+export CR_PAT=<YOUR_TOKEN>
+echo $CR_PAT | docker login ghcr.io -u <YOUR_GITHUB_USERNAME> --password-stdin
+```
+
+### Deploy a stack with one service overlayed for development
+
+In order to develop a service in its complete dot.base environment, you need to deploy the complete dot.base stack and replace the service you want develop with a dev overlay (a dev container containing the toolchains required for develpment). All dot.base services contain a `launch-stack.sh`.
+
+❗ This requires root!
+
 ```bash
 ./launch-stack.sh
 ```
-Follow the steps on the screen.
 
-By default the server is available at http://localhost:3000.
+### Install service dependencies
 
-Go and mix up some code 👩‍💻. The server will reload automatically once you save. Remember to keep an eye on the console.
+```bash
+docker exec -it $(docker ps -q -f name=dotbase_authentication-gateway) npm install
+```
 
-### Manual Setup
+### Start this service in development mode
 
-If you do not want to rely on the set up dot.base stack, follow these steps:
+```bash
+docker exec -it $(docker ps -q -f name=dotbase_authentication-gateway) npm start
+```
 
-1. Set up a keycloak instance:
-    1. Start a keycloak server
-        ```sh
-        docker run -p 8080:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin quay.io/keycloak/keycloak:15.0.2
-        ```
-    1. Create a new realm
-    1. Create a new client
-        1. Set the client "Access Type" to "confidential"
-        1. Set the "Valid Redirect URIs" to "http://127.0.0.1:8080/"
-    1. Create user with password
-1. Install all dependencies
-    ```
-    npm install
-    ```
-1. Set environment variables to configure the application:
-    ```sh  
-    export KEYCLOAK_DOTBASE_REALM_NAME="dotbase"
-    export KEYCLOAK_DOTBASE_REALM_CLIENT_ID="YOUR-CLIENT-ID"
-    export KEYCLOAK_DOTBASE_REALM_CLIENT_SECRET="YOUR-CLIENT-SECRET"
-    export DOTBASE_REALM_COOKIE_ENCRYPTION_PASSPHRASE_AES="YOUR-SECRET-TO-ENCRYPT-THE-SESSION-COOKIE"
+### Watch your dot.base stack
 
-    export KEYCLOAK_PATIENT_REALM_NAME="patients"
-    export KEYCLOAK_PATIENT_REALM_CLIENT_ID="YOUR-CLIENT-ID"
-    export KEYCLOAK_PATIENT_REALM_CLIENT_SECRET="YOUR-CLIENT-SECRET"
-    export PATIENT_REALM_COOKIE_ENCRYPTION_PASSPHRASE_AES="YOUR-SECRET-TO-ENCRYPT-THE-SESSION-COOKIE"
-    ```
-1. Start the development server
-    ```
-    npm start
-    ```
-1. After some startup the server will be available at http://localhost:3000.
-1. Go and mix up some code 👩‍💻. The server will reload automatically once you save. Remember to keep an eye on the console.
+```bash
+./dot-base/dot-base.sh watch
+```
+
+### Observe logs
+```bash
+./dot-base/dot-base.sh logs
+```
+
+### Stats
+```bash
+docker stats
+```
+
+### Use it
+
+Just checkout the dot.base instance on `https://${APP_HOSTNAME}`, e.g. https://dotbase.local
+
+You need to accept the security exception once in your browser as we are using a self-signed certificate.
+
+#### Add a user
+
+You'll want to add a user in keycloak's `dotbase` realm via the Keycloak Admin panel. `https://${APP_HOSTNAME}/auth`, e.g. https://dotbase.local/auth
+
+Username: `admin` Password: `password`.
+
+### Stop the stack
+
+```bash
+./dot-base/dot-base.sh stop
+```
+
+### Cleanup 
+
+To undo initial setup, run:
+
+❗ This requires root!
+```bash
+./dot-base/dot-base.sh cleanup
+```
+
+To cleanup dockers cache of images and containers run the following.
+
+❗ **Be sure to know what you are doing. This deletes on your whole docker instance, not only on the dot.base stack! This is destructive!**
+
+```bash
+docker images prune --all
+docker container prune --all
+```
+
+To cleanup dockers volumes, which will reset all databases, including dot.base FHIR data and keycloak user data, run the following.
+
+❗ **Be sure to know what you are doing. This deletes on your whole docker instance, not only on the dot.base stack! This is destructive!**
+
+```bash
+docker volumes prune --all
+```
+
+To cleanup all of dockers data, run the following.
+
+❗ **Be sure to know what you are doing. This deletes on your whole docker instance, not only on the dot.base stack! This is destructive!**
+
+```bash
+docker system prune --all
+```
