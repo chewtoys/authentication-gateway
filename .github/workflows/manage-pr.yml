@@ -50,6 +50,7 @@ jobs:
     needs: merge-release-pr
     uses: dot-base/.github/.github/workflows/create-release.yml@master
     secrets:
+      GH_BOT_USER: ${{ secrets.GH_BOT_USER }}
       GH_BOT_PAT: ${{ secrets.GH_BOT_PAT }}
       CR_PAT: ${{ secrets.CR_PAT }}
 
